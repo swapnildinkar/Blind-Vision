@@ -13,8 +13,8 @@ public class TTSInterface implements TextToSpeech.OnInitListener {
 	
 	public TTSInterface(Context context) {
 		tts = new TextToSpeech(context, this);
-		tts.setPitch(2.0f);
-		tts.setSpeechRate(2.0f);
+		tts.setPitch(0.7f);
+		tts.setSpeechRate(0.9f);
 	}
 	
 	public void speak(Response response) {
@@ -22,13 +22,18 @@ public class TTSInterface implements TextToSpeech.OnInitListener {
 			tts.speak(response.getResult(), TextToSpeech.QUEUE_FLUSH, null);
 	}
 
+	public void preSpeak(String text)
+	{
+		tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+	}
+	
 	@Override
 	public void onInit(int status) {
 		if (status == TextToSpeech.SUCCESS) {
 			 
             int result = tts.setLanguage(new Locale("en","US"));
-            tts.setPitch(new Float(0.6));
-            tts.setSpeechRate(new Float(0.8));
+            //tts.setPitch(new Float(0.6));
+            //tts.setSpeechRate(new Float(0.8));
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e("TTS", "This Language is not supported");
             } else {
@@ -43,6 +48,7 @@ public class TTSInterface implements TextToSpeech.OnInitListener {
 	public void stop() {
 		tts.stop();
 		tts.shutdown();
+		
 	}
 
 }
