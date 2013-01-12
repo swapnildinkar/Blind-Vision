@@ -1,8 +1,5 @@
 package com.example.demo;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.w3c.dom.Document;
@@ -11,31 +8,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.hardware.Camera;
-import android.hardware.Camera.PictureCallback;
-import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.ShutterCallback;
+import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.util.Log;
 import android.view.Menu;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.BlindVision.R;
+import com.google.android.voiceime.VoiceRecognitionTrigger;
 /*
  * mode
  * 1-find out what the user wants
@@ -43,8 +30,10 @@ import com.example.BlindVision.R;
  * 3-ocr
  * 4-ioio
  */
-public class MainActivity extends Activity {
-
+public class MainActivity extends Activity   {
+	//VoiceTyping vt;
+	public ButtonIntentReceiver r;
+    private VoiceRecognitionTrigger mVoiceRecognitionTrigger;
 	public TakePic tp;
 	public static final int code = 111;
 	public EditText etQuery;
@@ -61,6 +50,7 @@ public class MainActivity extends Activity {
 	public Node response;
 	public TextView txtStatus, txtUnderstood, txtAnswered, txtResult;
 	public TTSInterface tts;
+	public AudioManager am;
 	Button buttonClick;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +70,22 @@ public class MainActivity extends Activity {
 		tts = new TTSInterface(this);
 		//tts.speak(new Response(true,true,"what do you want to do ?",".."));
 		mode=1;
-		
-		while(tts.tts.isSpeaking()){}
 		voiceSearch();
-		//call("obama");
-		
+		IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
+	    r = new ButtonIntentReceiver();
+	    filter.setPriority(10000);
+	    registerReceiver(r, filter);
+	    
+	    
+	    /*am=(AudioManager)getSystemService(AUDIO_SERVICE);
+	    
+	    if(!am.isWiredHeadsetOn())
+	    {
+	    	//startservice
+	    	Toast.makeText(this, "not connected", Toast.LENGTH_SHORT).show(); 
+	    }*/
+		//vt=new VoiceTyping();
+		 // vt.startVoice();
 	}
 
 	@Override
@@ -102,37 +103,22 @@ public class MainActivity extends Activity {
 	
 	public void choice(String c)
 	{
-		if(mode==1)
-		{
-			if(c.equals("search"))
+			if(c.equals("navigate"))
 			{
-				mode=2;
-				voiceSearch();
-				
+				//mode=2;
+				//voiceSearch();
 			}
 			else if(c.equals("read"))
 			{
 				startActivity(new Intent(this, TakePic.class));
 				finish();
 			}
-		}
-		else if(mode==2)
-		{
-			call(c);
-			mode=1;
-		}
-		else if(mode==3)
-		{
-			//ocr
-		}
-		else if(mode==4)
-		{
-			//ioio
-		}
-		else if(mode==5)
-		{
-			//back
-		}
+			//else if(c.equals(null))
+				//voiceSearch();
+			else
+			{
+				call(c);
+			}
 	}
 	
 	public void call(String query) {
@@ -142,7 +128,7 @@ public class MainActivity extends Activity {
 		
 	}
 	
-	private void voiceSearch() {
+	public void voiceSearch() {
 		//tts.preSpeak("Hello, What do you want to do ?");
 		Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 		i.putExtra(RecognizerIntent.ACTION_RECOGNIZE_SPEECH, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -205,6 +191,11 @@ public class MainActivity extends Activity {
 			ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 			String result = results.get(0);
 			Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
+			//tts.tts.
+			if(tts.tts.ERROR==-1)
+			{
+				Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
+			}
 			choice(result);
 			//call(result);
 		}
@@ -214,9 +205,23 @@ public class MainActivity extends Activity {
     public void onDestroy() {
         // Don't forget to shutdown tts!
         if (tts != null) {
-            //tts.stop();
+           tts.stop();
+           unregisterReceiver(r);
         }
         super.onDestroy();
     }
 	
 }
+/*class VoiceTyping extends InputMethodService
+{
+	VoiceRecognitionTrigger mVoiceRecognitionTrigger;
+	protected void onCreate(Bundle savedInstanceState) 
+	{
+		mVoiceRecognitionTrigger = new VoiceRecognitionTrigger(this); 
+	}
+	public void startVoice()
+	{
+		mVoiceRecognitionTrigger.startVoiceRecognition();
+	}
+	
+}*/

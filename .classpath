@@ -4,5 +4,7 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="lib" path="libs/voiceimeutils.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mindows/Desktop/Everything Android/voiceimeutils.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
