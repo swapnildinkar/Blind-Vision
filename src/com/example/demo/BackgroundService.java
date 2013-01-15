@@ -25,11 +25,9 @@ private ShakeListener mShaker;
 	    mShaker.setOnShakeListener(new ShakeListener.OnShakeListener () {
 	      public void onShake()
 	      {
-	        Toast.makeText(BackgroundService.this, "Shaken!", Toast.LENGTH_SHORT).show();
-	        Intent i = new Intent(BackgroundService.this, MainActivity.class);
-	        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	        startActivity(i);
-	       }
+	        Toast.makeText(BackgroundService.this, "Shake Detected!", Toast.LENGTH_SHORT).show();
+	        startActivity(new Intent(BackgroundService.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+	      }
 	    });
    }
 

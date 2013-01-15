@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import com.example.BlindVision.R;
+import com.example.demo.R;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 

@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.example.BlindVision.R;
+import com.example.demo.R;
 
 import android.app.Activity;
 import android.content.Intent;

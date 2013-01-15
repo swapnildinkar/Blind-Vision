@@ -5,7 +5,7 @@ import java.util.Locale;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import com.example.BlindVision.R;
+import com.example.demo.R;
 
 public class TTSInterface implements TextToSpeech.OnInitListener {
 	

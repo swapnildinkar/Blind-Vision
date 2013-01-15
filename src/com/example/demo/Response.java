@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import com.example.BlindVision.R;
+import com.example.demo.R;
 
 public class Response {
 	public boolean isUnderstood;

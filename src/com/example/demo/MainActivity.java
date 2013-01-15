@@ -21,8 +21,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.BlindVision.R;
-import com.google.android.voiceime.VoiceRecognitionTrigger;
+
+import com.example.demo.R;
+import com.example.demo.BackgroundService;
 /*
  * mode
  * 1-find out what the user wants
@@ -31,9 +32,7 @@ import com.google.android.voiceime.VoiceRecognitionTrigger;
  * 4-ioio
  */
 public class MainActivity extends Activity   {
-	//VoiceTyping vt;
 	public ButtonIntentReceiver r;
-    private VoiceRecognitionTrigger mVoiceRecognitionTrigger;
 	public TakePic tp;
 	public static final int code = 111;
 	public EditText etQuery;
@@ -70,24 +69,17 @@ public class MainActivity extends Activity   {
 		tts = new TTSInterface(this);
 		//tts.speak(new Response(true,true,"what do you want to do ?",".."));
 		mode=1;
-		voiceSearch();
+		
+
+	    //startService(new Intent(this, BackgroundService.class));
+	    voiceSearch();
 		IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
 	    r = new ButtonIntentReceiver();
 	    filter.setPriority(10000);
 	    registerReceiver(r, filter);
-	    
-	    
-	    /*am=(AudioManager)getSystemService(AUDIO_SERVICE);
-	    
-	    if(!am.isWiredHeadsetOn())
-	    {
-	    	//startservice
-	    	Toast.makeText(this, "not connected", Toast.LENGTH_SHORT).show(); 
-	    }*/
-		//vt=new VoiceTyping();
-		 // vt.startVoice();
 	}
 
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
@@ -115,6 +107,10 @@ public class MainActivity extends Activity   {
 			}
 			//else if(c.equals(null))
 				//voiceSearch();
+			else if(c.equals("alarm"))
+			{
+				
+			}
 			else
 			{
 				call(c);

@@ -11,7 +11,6 @@ public class BootReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		Intent serviceIntent = new Intent(context, BackgroundService.class);
 		context.startService(serviceIntent);
-		Toast.makeText(context, "Boot completed!", Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, "Blind Vision Service started!", Toast.LENGTH_SHORT).show();
 	}
-
 }

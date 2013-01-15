@@ -15,7 +15,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import android.util.Log;
-import com.example.BlindVision.R;
+import com.example.demo.R;
 
 public class XMLParser {
 	
