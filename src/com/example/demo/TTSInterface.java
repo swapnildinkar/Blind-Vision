@@ -9,7 +9,7 @@ import com.example.demo.R;
 
 public class TTSInterface implements TextToSpeech.OnInitListener {
 	
-	TextToSpeech tts;
+	public static TextToSpeech tts;
 	
 	public TTSInterface(Context context) {
 		tts = new TextToSpeech(context, this);
@@ -47,7 +47,7 @@ public class TTSInterface implements TextToSpeech.OnInitListener {
 	
 	public void stop() {
 		tts.stop();
-		tts.shutdown();
+		//tts.shutdown();
 		
 	}
 

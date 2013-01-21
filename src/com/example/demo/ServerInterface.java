@@ -12,8 +12,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 public class ServerInterface {
-	public String getXmlFromUrl(String url) {
-        String xml = null;
+	public String getJSONFromUrl(String url) {
+        String json = null;
 
         try {
             // defaultHttpClient
@@ -21,7 +21,7 @@ public class ServerInterface {
             HttpGet httpGet = new HttpGet(url);
             HttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity httpEntity = httpResponse.getEntity();
-            xml = EntityUtils.toString(httpEntity);
+            json = EntityUtils.toString(httpEntity);
  
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -31,6 +31,6 @@ public class ServerInterface {
             e.printStackTrace();
         }
         // return XML
-        return xml;
+        return json;
     }
 }

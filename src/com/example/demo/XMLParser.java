@@ -26,8 +26,7 @@ public class XMLParser {
             DocumentBuilder db = dbf.newDocumentBuilder();
             InputSource is = new InputSource();
                 is.setCharacterStream(new StringReader(xml));
-                doc = db.parse(is); 
- 
+                doc = db.parse(is);
             } catch (ParserConfigurationException e) {
                 Log.e("Error: ", e.getMessage());
                 return null;

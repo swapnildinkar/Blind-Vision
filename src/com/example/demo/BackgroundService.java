@@ -1,17 +1,14 @@
 package com.example.demo;
 
-import android.app.AlertDialog;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.Vibrator;
 import android.widget.Toast;
 
 public class BackgroundService extends Service {
-
+public static boolean instance;
 private ShakeListener mShaker;
-	
+	//public TTSInterface tts;
    @Override
    public IBinder onBind(Intent intent) {
       return null;
@@ -20,19 +17,39 @@ private ShakeListener mShaker;
    @Override
    public void onCreate() {
 	   //final Vibrator vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-
+	   instance=true;
 	    mShaker = new ShakeListener(this);
+	   
 	    mShaker.setOnShakeListener(new ShakeListener.OnShakeListener () {
 	      public void onShake()
 	      {
+	    	if(MainActivity.tts.tts.isSpeaking())
+	  	    {
 	        Toast.makeText(BackgroundService.this, "Shake Detected!", Toast.LENGTH_SHORT).show();
-	        startActivity(new Intent(BackgroundService.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+	        MainActivity.tts.tts.stop();
+	        //MainActivity.tts = new TTSInterface(MainActivity.this);
+	        MainActivity.tts.preSpeak(MainActivity.result);
+	        //startActivity(new Intent(BackgroundService.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
 	      }
+	    	else
+	    		startActivity(new Intent(BackgroundService.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+	 	   
+	    		
+	      }
+	      
 	    });
+	    
+	    
+	    
    }
 
+   public boolean isServiceCreated()
+   {
+	   return instance;
+   }
    @Override
    public void onDestroy() {
+	   instance=false;
       //code to execute when the service is shutting down
    }
 
