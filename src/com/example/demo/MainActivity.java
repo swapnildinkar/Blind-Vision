@@ -4,18 +4,22 @@ import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.ContactsContract;
 import android.speech.RecognizerIntent;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.Button;
@@ -23,13 +27,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-/*
- * mode
- * 1-find out what the user wants
- * 2-search
- * 3-ocr
- * 4-ioio
- */
 public class MainActivity extends Activity {
 	public ButtonIntentReceiver r;
 	public TakePic tp;
@@ -42,12 +39,10 @@ public class MainActivity extends Activity {
 	public static String result;
 	// public String domain =
 	// "https://api.trueknowledge.com/direct_answer?object_metadata=image128,wikipedia,official%20&question=";
-	public String domain = "http://blindvision.net84.net/blindvision/maluuba.php?query=";
-	public String username = "&api_account_id=api_blindvision";
-	public String password = "&api_password=mxftf8bi2bopl5is";
+	public String domain = "http://mess.byethost31.com/bv/vserver.php?query=";
+	// public String username = "&api_account_id=api_blindvision";
+	// public String password = "&api_password=mxftf8bi2bopl5is";
 	public ServerInterface serverInterface;
-	public XMLParser myParser;
-	public Document doc;
 	public Node response;
 	public TextView txtStatus, txtUnderstood, txtAnswered, txtResult;
 	public static TTSInterface tts;
@@ -55,42 +50,49 @@ public class MainActivity extends Activity {
 	public PowerManager.WakeLock wl;
 	static JSONObject jObj = null;
 	Button buttonClick;
-	String action, contact;
+	String action, contact, name, message;
+	public final static String FIRST_RUN = "firstRun";
+	public final static String IS_REGISTERED = "isRegistered";
+	public final static String BLINDVISION_PREFS = "blindvision";
+	
+	static final String[] CONTACTS_SUMMARY_PROJECTION = new String[] {
+			ContactsContract.Contacts._ID,
+			ContactsContract.Contacts.DISPLAY_NAME,
+			ContactsContract.Contacts.STARRED,
+			ContactsContract.Contacts.TIMES_CONTACTED,
+			ContactsContract.Contacts.CONTACT_PRESENCE,
+			ContactsContract.Contacts.PHOTO_ID,
+			ContactsContract.Contacts.LOOKUP_KEY,
+			ContactsContract.Contacts.HAS_PHONE_NUMBER, };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		// etQuery = (EditText) findViewById(R.id.etQuery);
-		// txtStatus = (TextView) findViewById(R.id.txtStatus);
-		// txtUnderstood= (TextView) findViewById(R.id.txtUnderstood);
-		// txtAnswered = (TextView) findViewById(R.id.txtAnswered);
-		// txtResult = (TextView) findViewById(R.id.txtResult);
-		// btnSearch = (Button) findViewById(R.id.btnSearch);
-		// btnVoiceSearch = (Button) findViewById(R.id.btnVoiceSearch);
-		// btnSearch.setOnClickListener(this);
-		// btnVoiceSearch.setOnClickListener(this);
 		serverInterface = new ServerInterface();
-		myParser = new XMLParser();
 		tts = new TTSInterface(this);
-		// tts.speak(new Response(true,true,"what do you want to do ?",".."));
 		mode = 1;
-		// String TAG = MainActivity.class.getSimpleName();
-
-		// Log.d(TAG, "TAG text");
-		// PowerManager pm = (PowerManager) this
-		// .getSystemService(Context.POWER_SERVICE);
-		// wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-		// wl.acquire();
-		// startService(new Intent(this, BackgroundService.class));
+		tts = new TTSInterface(this);
 		voiceSearch();
 		IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
 		r = new ButtonIntentReceiver();
 		filter.setPriority(10000);
 		registerReceiver(r, filter);
+		
+		/*
+		// checkk if preferences set
+		if (true) {
+			String reply = serverInterface.register(this);
+			if (reply.equals("success")) {
+				// set preferences
+				// store id and bkey in preferences.
+				Toast.makeText(this, "Registration Successful!", Toast.LENGTH_LONG).show();
+			}
+		}*/
 		if (!BackgroundService.instance) {
 			startService(new Intent(this, BackgroundService.class));
 		}
+
 	}
 
 	@Override
@@ -99,23 +101,12 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
-	public String stt() {
-		voiceSearch();
-		return ("");
-
-	}
-
 	public void choice(String c) {
 		if (c.equals("navigate")) {
-			// mode=2;
-			// voiceSearch();
 		} else if (c.equals("read")) {
 			startActivity(new Intent(this, TakePic.class));
 			finish();
-		}
-		// else if(c.equals(null))
-		// voiceSearch();
-		else if (c.equals("alarm")) {
+		} else if (c.equals("alarm")) {
 
 		} else {
 			call(c);
@@ -164,43 +155,96 @@ public class MainActivity extends Activity {
 
 			if (action.equals("CALL")) {
 				Toast.makeText(this, "CALL", Toast.LENGTH_LONG).show();
-				result="call " + jObj.getString("contact");
+				contact = jObj.getString("contact");
+				result = "call " + contact;
+
+				String select = "(" + ContactsContract.Contacts.DISPLAY_NAME
+						+ " == \"" + contact + "\" )";
+				Cursor c = this.getContentResolver().query(
+						ContactsContract.Contacts.CONTENT_URI,
+						CONTACTS_SUMMARY_PROJECTION,
+						select,
+						null,
+						ContactsContract.Contacts.DISPLAY_NAME
+								+ " COLLATE LOCALIZED ASC");
+				this.startManagingCursor(c);
+
+				if (c.moveToNext()) {
+					String id = c.getString(0);
+					ArrayList<String> phones = new ArrayList<String>();
+
+					Cursor pCur = this.getContentResolver().query(
+							ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+							null,
+							ContactsContract.CommonDataKinds.Phone.CONTACT_ID
+									+ " = ?", new String[] { id }, null);
+					while (pCur.moveToNext()) {
+						phones.add(pCur.getString(pCur
+								.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+						Log.i("",
+								contact
+										+ " has the following phone number "
+										+ pCur.getString(pCur
+												.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+					}
+					Intent callIntent = new Intent(Intent.ACTION_CALL);
+					callIntent.setData(Uri.parse("tel:" + phones.get(0)));
+					startActivity(callIntent);
+					pCur.close();
+				}
+			} else if (action.equals("MESSAGE")) {
+				Toast.makeText(this, "CALL", Toast.LENGTH_LONG).show();
+				contact = jObj.getString("contact");
+				message = jObj.getString("message");
+				result = "message " + contact + message;
+
+				String select = "(" + ContactsContract.Contacts.DISPLAY_NAME
+						+ " == \"" + contact + "\" )";
+				Cursor c = this.getContentResolver().query(
+						ContactsContract.Contacts.CONTENT_URI,
+						CONTACTS_SUMMARY_PROJECTION,
+						select,
+						null,
+						ContactsContract.Contacts.DISPLAY_NAME
+								+ " COLLATE LOCALIZED ASC");
+				this.startManagingCursor(c);
+
+				if (c.moveToNext()) {
+					String id = c.getString(0);
+					ArrayList<String> phones = new ArrayList<String>();
+
+					Cursor pCur = this.getContentResolver().query(
+							ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+							null,
+							ContactsContract.CommonDataKinds.Phone.CONTACT_ID
+									+ " = ?", new String[] { id }, null);
+					while (pCur.moveToNext()) {
+						phones.add(pCur.getString(pCur
+								.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+						Log.i("",
+								contact
+										+ " has the following phone number "
+										+ pCur.getString(pCur
+												.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+					}
+					PendingIntent pi = PendingIntent.getActivity(this, 0,
+							new Intent(this, MainActivity.class), 0);
+					SmsManager sms = SmsManager.getDefault();
+					sms.sendTextMessage(phones.get(0), null, message, pi, null);
+					pCur.close();
+				}
 			} else if (action.equals("KNOWLEDGE")) {
 				result = jObj.getString("knowledge");
 			}
 		} catch (JSONException e) {
 			Log.e("JSON Parser", "Error parsing data " + e.toString());
+			//finish();
+			result = "Error while processing";
 		}
-		//String status = "", result = "";
-		boolean understood = false;
-		boolean answered = false;
-		/*
-		 * doc = myParser.getDomElement(XML); NodeList nl =
-		 * doc.getElementsByTagName("tk:response"); for (int i = 0; i <
-		 * nl.getLength(); i++) { Element e = (Element) nl.item(i); status
-		 * =myParser.getValue(e, "tk:status"); understood
-		 * =e.getAttribute("understood").equals("true"); answered
-		 * =e.getAttribute("answered").equals("true"); result =
-		 * myParser.getValue(e, "tk:text_result"); }
-		 * //txtStatus.setText("Status: " + status);
-		 * //txtUnderstood.setText("Understood: " + understood);
-		 * //txtAnswered.setText("Answered: " + answered);
-		 * //txtResult.setText(result); //tts.speak(new
-		 * //Response(true,true,"Hello","world")); //tts.speak(new
-		 * Response((boolean)understood, (boolean)answered, result, status));
-		 */
-
-
-		//tts=new TTSInterface(this);
 		tts.preSpeak(result);
 		Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
-		//while (tts.tts.isSpeaking()) {
-			
-			//tts.stop();
-			// voiceSearch();
-		//}
-		result=null;
-		//voiceSearch();
+		result = null;
+		
 	}
 
 	@Override
@@ -211,32 +255,28 @@ public class MainActivity extends Activity {
 			ArrayList<String> results = data
 					.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 			String result = results.get(0);
-			Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
-
-			choice(result); // call(result);
+			for(int i = 0; i < results.size(); i++){
+				Log.v("Blind Vision", results.get(i));
+			}
+			if(result.equalsIgnoreCase("read") || result.equalsIgnoreCase("reid") || result.equalsIgnoreCase("read it") || result.equalsIgnoreCase("reed"))
+			{
+				startActivity(new Intent(this, edu.sfsu.cs.orange.ocr.CaptureActivity.class));
+			}
+			else
+			{
+			call(result);
+			}
 		} else {
-
+			// yet to be tested.
+			// voiceSearch();
 		}
-
 	}
-
 	@Override
 	public void onDestroy() {
-		// Don't forget to shutdown tts!
 		if (tts != null) {
-			tts.stop();
+			tts.tts.stop();
 			unregisterReceiver(r);
 		}
 		super.onDestroy();
-		// wl.release();
 	}
-
 }
-/*
- * class VoiceTyping extends InputMethodService { VoiceRecognitionTrigger
- * mVoiceRecognitionTrigger; protected void onCreate(Bundle savedInstanceState)
- * { mVoiceRecognitionTrigger = new VoiceRecognitionTrigger(this); } public void
- * startVoice() { mVoiceRecognitionTrigger.startVoiceRecognition(); }
- * 
- * }
- */

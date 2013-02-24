@@ -17,11 +17,6 @@ public class TTSInterface implements TextToSpeech.OnInitListener {
 		tts.setSpeechRate(0.9f);
 	}
 	
-	public void speak(Response response) {
-		if(response.isAnswered() && response.isUnderstood)
-			tts.speak(response.getResult(), TextToSpeech.QUEUE_FLUSH, null);
-	}
-
 	public void preSpeak(String text)
 	{
 		tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);

@@ -8,12 +8,16 @@
         android:minSdkVersion="10"
         android:targetSdkVersion="10" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.CAMERA"/>
+	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-feature android:name="android.hardware.camera" />
-	<uses-permission android:name="android.permission.VIBRATE"/>
-	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -28,13 +32,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.demo.TakePic"
-            		android:label="OCR"></activity>
+         <activity android:name="edu.sfsu.cs.orange.ocr.CaptureActivity"
+              android:screenOrientation="landscape"
+              android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+              android:windowSoftInputMode="stateAlwaysHidden"              
+              />
+         <activity android:name="edu.sfsu.cs.orange.ocr.HelpActivity"
+              />
+          <activity android:name="edu.sfsu.cs.orange.ocr.PreferencesActivity"
+              />
         <receiver android:name=".ButtonIntentReceiver">
         <intent-filter>
             <action android:name="android.intent.action.MEDIA_BUTTON" />
         </intent-filter>
     </receiver>
+    <receiver android:name=".SMSBroadcastReceiver" >
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" >
+                </action>
+            </intent-filter>
+        </receiver>
    <service android:enabled="true" android:name=".BackgroundService"></service>
 <receiver android:name=".BootReceiver">
 <intent-filter>
