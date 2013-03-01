@@ -24,7 +24,7 @@ private ShakeListener mShaker;
 	    mShaker.setOnShakeListener(new ShakeListener.OnShakeListener () {
 	      public void onShake()
 	      {
-	    	if(MainActivity.tts.tts.isSpeaking())
+	    	if(MainActivity.tts.tts.isSpeaking() && MainActivity.tts.tts!=null)
 	  	    {
 	        //Toast.makeText(BackgroundService.this, "Shake Detected!", Toast.LENGTH_SHORT).show();
 	    	MainActivity.tts.tts.stop();

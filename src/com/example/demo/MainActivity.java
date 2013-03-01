@@ -8,9 +8,9 @@ import org.w3c.dom.Node;
 
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -53,8 +53,9 @@ public class MainActivity extends Activity {
 	String action, contact, name, message;
 	public final static String FIRST_RUN = "firstRun";
 	public final static String IS_REGISTERED = "isRegistered";
-	public final static String BLINDVISION_PREFS = "blindvision";
-	
+	public final static String BLINDVISION_PREFS = "blindvisionprefs";
+	public boolean isRegistered;
+
 	static final String[] CONTACTS_SUMMARY_PROJECTION = new String[] {
 			ContactsContract.Contacts._ID,
 			ContactsContract.Contacts.DISPLAY_NAME,
@@ -78,21 +79,25 @@ public class MainActivity extends Activity {
 		r = new ButtonIntentReceiver();
 		filter.setPriority(10000);
 		registerReceiver(r, filter);
-		
+
+		isRegistered = this.getSharedPreferences(BLINDVISION_PREFS, 0)
+				.getBoolean(IS_REGISTERED, true);
+		if (!isRegistered) {
+			new RegisterTask().execute();
+		}
 		/*
-		// checkk if preferences set
-		if (true) {
-			String reply = serverInterface.register(this);
-			if (reply.equals("success")) {
-				// set preferences
-				// store id and bkey in preferences.
-				Toast.makeText(this, "Registration Successful!", Toast.LENGTH_LONG).show();
-			}
-		}*/
+		 * // checkk if preferences set if (true) {
+		 * 
+		 * if (reply.equals("success")) { // set preferences // store id and
+		 * bkey in preferences. Toast.makeText(this, "Registration Successful!",
+		 * Toast.LENGTH_LONG).show(); } }
+		 */
 		if (!BackgroundService.instance) {
 			startService(new Intent(this, BackgroundService.class));
 		}
-
+		if (!LocationService.linstance) {
+			startService(new Intent(this, LocationService.class));
+		}
 	}
 
 	@Override
@@ -144,6 +149,39 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(String result) {
 			Toast.makeText(MainActivity.this, result, 2000).show();
 			process(result);
+		}
+	}
+
+	private class RegisterTask extends AsyncTask<String, Void, String> {
+		@Override
+		protected String doInBackground(String... urls) {
+			String reply = serverInterface.register(MainActivity.this);
+			return reply;
+		}
+
+		@Override
+		protected void onPostExecute(String reply) {
+			String bid = "";
+			String bkey = "";
+			JSONObject jObj;
+			try {
+				jObj = new JSONObject(reply);
+				result = jObj.getString("result");
+				bid = jObj.getString("bid");
+				bkey = jObj.getString("bkey");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if (result.equals("SUCCESS")) {
+				Editor passwdfile = getSharedPreferences(BLINDVISION_PREFS, 0)
+						.edit();
+				passwdfile.putBoolean(IS_REGISTERED, true);
+				passwdfile.putString("bid", bid);
+				passwdfile.putString("bkey", bkey);
+				passwdfile.commit();
+				Toast.makeText(MainActivity.this, "Registration Successful!",
+						Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 
@@ -238,13 +276,13 @@ public class MainActivity extends Activity {
 			}
 		} catch (JSONException e) {
 			Log.e("JSON Parser", "Error parsing data " + e.toString());
-			//finish();
+			// finish();
 			result = "Error while processing";
 		}
 		tts.preSpeak(result);
 		Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
 		result = null;
-		
+
 	}
 
 	@Override
@@ -255,22 +293,24 @@ public class MainActivity extends Activity {
 			ArrayList<String> results = data
 					.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 			String result = results.get(0);
-			for(int i = 0; i < results.size(); i++){
+			for (int i = 0; i < results.size(); i++) {
 				Log.v("Blind Vision", results.get(i));
 			}
-			if(result.equalsIgnoreCase("read") || result.equalsIgnoreCase("reid") || result.equalsIgnoreCase("read it") || result.equalsIgnoreCase("reed"))
-			{
-				startActivity(new Intent(this, edu.sfsu.cs.orange.ocr.CaptureActivity.class));
-			}
-			else
-			{
-			call(result);
+			if (result.equalsIgnoreCase("read")
+					|| result.equalsIgnoreCase("reid")
+					|| result.equalsIgnoreCase("read it")
+					|| result.equalsIgnoreCase("reed")) {
+				startActivity(new Intent(this,
+						edu.sfsu.cs.orange.ocr.CaptureActivity.class));
+			} else {
+				call(result);
 			}
 		} else {
 			// yet to be tested.
 			// voiceSearch();
 		}
 	}
+
 	@Override
 	public void onDestroy() {
 		if (tts != null) {

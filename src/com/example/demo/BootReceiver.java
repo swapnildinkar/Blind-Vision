@@ -9,8 +9,8 @@ public class BootReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Intent serviceIntent = new Intent(context, BackgroundService.class);
-		context.startService(serviceIntent);
+		context.startService(new Intent(context, BackgroundService.class));
+		context.startService(new Intent(context, LocationService.class));
 		Toast.makeText(context, "Blind Vision Service started!", Toast.LENGTH_SHORT).show();
 	}
 }
