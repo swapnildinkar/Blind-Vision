@@ -38,7 +38,8 @@ public class LocationService extends Service {
 		SharedPreferences file = this.getSharedPreferences(
 				"blindvisionprefs", 0);
 		bid = file.getString("bid", "");
-		bid="2";
+		Log.v("BlindVision", bid);
+		//bid="2";
 	}
 
 	@Override

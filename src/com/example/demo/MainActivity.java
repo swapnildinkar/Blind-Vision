@@ -82,9 +82,10 @@ public class MainActivity extends Activity {
 
 		isRegistered = this.getSharedPreferences(BLINDVISION_PREFS, 0)
 				.getBoolean(IS_REGISTERED, true);
-		if (!isRegistered) {
+		Log.v("BlindVision","isRegistered : "+ isRegistered);
+		//if (!isRegistered) {
 			new RegisterTask().execute();
-		}
+		//}
 		/*
 		 * // checkk if preferences set if (true) {
 		 * 
@@ -302,7 +303,12 @@ public class MainActivity extends Activity {
 					|| result.equalsIgnoreCase("reed")) {
 				startActivity(new Intent(this,
 						edu.sfsu.cs.orange.ocr.CaptureActivity.class));
-			} else {
+			}
+			else if (result.equalsIgnoreCase("navigate")) {
+				startActivity(new Intent(this,
+						com.example.demo.IOIOUltrasonicSensorActivity.class));
+			}
+			else {
 				call(result);
 			}
 		} else {

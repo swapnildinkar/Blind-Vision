@@ -14,8 +14,12 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 public class ServerInterface {
 	DefaultHttpClient httpClient;
@@ -24,11 +28,11 @@ public class ServerInterface {
 	HttpEntity httpEntity;
 
 	static String SERVER_URL = "http://mess.byethost31.com/bv/";
-	
+
 	public String getJSONFromUrl(String url) {
 		String json = null;
 		try {
-			
+
 			// defaultHttpClient
 			httpClient = new DefaultHttpClient();
 			httpGet = new HttpGet(url);
@@ -48,20 +52,39 @@ public class ServerInterface {
 	}
 
 	public String register(Context context) {
-		String result = null;
+		String result = null, reply = null, bid = null, bkey = null;
 		try {
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(context.TELEPHONY_SERVICE);
-            String phonenumber = tm.getSimSerialNumber();
+			TelephonyManager tm = (TelephonyManager) context
+					.getSystemService(context.TELEPHONY_SERVICE);
+			String phonenumber = tm.getSimSerialNumber();
+			Log.v("BlindVision", phonenumber);
 			httpClient = new DefaultHttpClient();
-			HttpGet httpGet = new HttpGet("mess.byethost31.com/bv/mreg.php?phn="+phonenumber);
-			HttpResponse httpResponse = httpClient.execute(httpGet);
-			HttpEntity httpEntity = httpResponse.getEntity();
-			result = EntityUtils.toString(httpEntity);
-			if (result.equals("done")) {
+			// HttpGet httpGet = new
+			// HttpGet("mess.byethost31.com/bv/mreg.php?phn="+phonenumber);
+			httpGet = new HttpGet(
+					"http://www.mess.byethost31.com/bv/mreg.php?phn="
+							+ phonenumber);
+			httpResponse = httpClient.execute(httpGet);
+			httpEntity = httpResponse.getEntity();
+			reply = EntityUtils.toString(httpEntity);
+			Log.v("BlindVision", "register activity end");
+			JSONObject jObj;
+
+			jObj = new JSONObject(reply);
+			result = jObj.getString("result");
+			
+			Log.v("BlindVision", result);
+			if (result.equals("SUCCESS")) {
+				Log.v("BlindVision", "success");
+				bid = jObj.getString("bid");
+				bkey = jObj.getString("bkey");
 				return "success";
+
 			} else {
+				Log.v("BlindVision", "failed");
 				return "failed";
 			}
+
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -71,57 +94,62 @@ public class ServerInterface {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 		return "error";
 	}
-	
+
 	public static String setLocation(String data) {
-    	SERVER_URL += "mcon.php";
-    	return executeHttpRequest(data);
-    }
-	
-    private static String executeHttpRequest(String data) {
-        String result = "";
-        try {
-                URL url = new URL(SERVER_URL);
-                URLConnection connection = url.openConnection();
-                
-                /*
-                 * We need to make sure we specify that we want to provide input and
-                 * get output from this connection. We also want to disable caching,
-                 * so that we get the most up-to-date result. And, we need to 
-                 * specify the correct content type for our data.
-                 */
-                connection.setDoInput(true);
-                connection.setDoOutput(true);
-                connection.setUseCaches(false);
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		SERVER_URL += "mcon.php";
+		return executeHttpRequest(data);
+	}
 
-                // Send the POST data
-                DataOutputStream dataOut = new DataOutputStream(connection.getOutputStream());
-                dataOut.writeBytes(data);
-                dataOut.flush();
-                dataOut.close();
+	private static String executeHttpRequest(String data) {
+		String result = "";
+		try {
+			URL url = new URL(SERVER_URL);
+			URLConnection connection = url.openConnection();
 
-                // get the response from the server and store it in result
-                DataInputStream dataIn = new DataInputStream(connection.getInputStream()); 
-                String inputLine;
-                while ((inputLine = dataIn.readLine()) != null) {
-                        result += inputLine;
-                }
-                dataIn.close();
-        } catch (IOException e) {
-                /*
-                 * In case of an error, we're going to return a null String. This
-                 * can be changed to a specific error message format if the client
-                 * wants to do some error handling. For our simple app, we're just
-                 * going to use the null to communicate a general error in
-                 * retrieving the data.
-                 */
-                e.printStackTrace();
-                result = null;
-        }
-        
-        return result;
-}
+			/*
+			 * We need to make sure we specify that we want to provide input and
+			 * get output from this connection. We also want to disable caching,
+			 * so that we get the most up-to-date result. And, we need to
+			 * specify the correct content type for our data.
+			 */
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+			connection.setUseCaches(false);
+			connection.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded");
+
+			// Send the POST data
+			DataOutputStream dataOut = new DataOutputStream(
+					connection.getOutputStream());
+			dataOut.writeBytes(data);
+			dataOut.flush();
+			dataOut.close();
+
+			// get the response from the server and store it in result
+			DataInputStream dataIn = new DataInputStream(
+					connection.getInputStream());
+			String inputLine;
+			while ((inputLine = dataIn.readLine()) != null) {
+				result += inputLine;
+			}
+			dataIn.close();
+		} catch (IOException e) {
+			/*
+			 * In case of an error, we're going to return a null String. This
+			 * can be changed to a specific error message format if the client
+			 * wants to do some error handling. For our simple app, we're just
+			 * going to use the null to communicate a general error in
+			 * retrieving the data.
+			 */
+			e.printStackTrace();
+			result = null;
+		}
+
+		return result;
+	}
 }
