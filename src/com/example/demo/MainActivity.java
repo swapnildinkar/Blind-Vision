@@ -72,8 +72,8 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		serverInterface = new ServerInterface();
 		tts = new TTSInterface(this);
+		Log.v("Blind Vision", "TTS initialized ino ncreate");
 		mode = 1;
-		tts = new TTSInterface(this);
 		voiceSearch();
 		IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
 		r = new ButtonIntentReceiver();
@@ -81,22 +81,15 @@ public class MainActivity extends Activity {
 		registerReceiver(r, filter);
 
 		isRegistered = this.getSharedPreferences(BLINDVISION_PREFS, 0)
-				.getBoolean(IS_REGISTERED, true);
-		Log.v("BlindVision","isRegistered : "+ isRegistered);
-		//if (!isRegistered) {
+				.getBoolean(IS_REGISTERED, false);
+		Log.v("BlindVision", "isRegistered : " + isRegistered);
+		if (!isRegistered) {
 			new RegisterTask().execute();
-		//}
-		/*
-		 * // checkk if preferences set if (true) {
-		 * 
-		 * if (reply.equals("success")) { // set preferences // store id and
-		 * bkey in preferences. Toast.makeText(this, "Registration Successful!",
-		 * Toast.LENGTH_LONG).show(); } }
-		 */
+		}
 		if (!BackgroundService.instance) {
 			startService(new Intent(this, BackgroundService.class));
 		}
-		if (!LocationService.linstance) {
+		if (!LocationService.linstance && isRegistered) {
 			startService(new Intent(this, LocationService.class));
 		}
 	}
@@ -280,10 +273,37 @@ public class MainActivity extends Activity {
 			// finish();
 			result = "Error while processing";
 		}
+
 		tts.preSpeak(result);
 		Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
 		result = null;
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onPause()
+	 */
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		if (tts.tts != null)
+			tts.tts.shutdown();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		if (tts == null || tts.tts == null)
+			tts = new TTSInterface(this);
 	}
 
 	@Override
@@ -303,12 +323,10 @@ public class MainActivity extends Activity {
 					|| result.equalsIgnoreCase("reed")) {
 				startActivity(new Intent(this,
 						edu.sfsu.cs.orange.ocr.CaptureActivity.class));
-			}
-			else if (result.equalsIgnoreCase("navigate")) {
+			} else if (result.equalsIgnoreCase("navigate")) {
 				startActivity(new Intent(this,
 						com.example.demo.IOIOUltrasonicSensorActivity.class));
-			}
-			else {
+			} else {
 				call(result);
 			}
 		} else {
@@ -319,8 +337,9 @@ public class MainActivity extends Activity {
 
 	@Override
 	public void onDestroy() {
-		if (tts != null) {
+		if (tts.tts != null) {
 			tts.tts.stop();
+			tts.tts.shutdown();
 			unregisterReceiver(r);
 		}
 		super.onDestroy();

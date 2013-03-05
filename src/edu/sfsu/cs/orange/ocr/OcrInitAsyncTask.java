@@ -35,6 +35,7 @@ import java.util.zip.ZipInputStream;
 import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarInputStream;
 
+import com.example.demo.TakePic;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import android.app.ProgressDialog;
@@ -707,6 +708,7 @@ final class OcrInitAsyncTask extends AsyncTask<String, String, Boolean> {
       // Restart recognition
       activity.resumeOCR();
       activity.showLanguageName();
+      activity.takePic();
     } else {
       activity.showErrorMessage("Error", "Network is unreachable - cannot download language data. "
           + "Please enable network access and restart this app.");

@@ -167,7 +167,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private View progressView;
   private OcrResult lastResult;
   private Bitmap lastBitmap;
-  private boolean hasSurface;
+  private boolean hasSurface,t=true;
   private BeepManager beepManager;
   private TessBaseAPI baseApi; // Java interface for the Tesseract OCR engine
   private String sourceLanguageCodeOcr; // ISO 639-3 language code
@@ -206,7 +206,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   @Override
   public void onCreate(Bundle icicle) {
     super.onCreate(icicle);
-    
+   t=true;
     checkFirstLaunch();
     
     if (isFirstLaunch) {
@@ -366,9 +366,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     } else {
       // We already have the engine initialized, so just start the camera.
       resumeOCR();
-      if(handler!=null) {
-    	  handler.shutterButtonClick();
-      }
+      
     }
   }
   
@@ -737,7 +735,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     statusViewTop.setVisibility(View.GONE);
     cameraButtonView.setVisibility(View.GONE);
     //viewfinderView.setVisibility(View.GONE);
-    resultView.setVisibility(View.VISIBLE);
+    //resultView.setVisibility(View.VISIBLE);
 
     ImageView bitmapImageView = (ImageView) findViewById(R.id.image_view);
     lastBitmap = ocrResult.getBitmap();
@@ -753,7 +751,25 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     sourceLanguageTextView.setText(sourceLanguageReadable);
     TextView ocrResultTextView = (TextView) findViewById(R.id.ocr_result_text_view);
     ocrResultTextView.setText(ocrResult.getText());
-    // Crudely scale betweeen 22 and 32 -- bigger font for shorter text
+    Toast.makeText(this, ocrResult.getText(), Toast.LENGTH_SHORT).show();
+    Log.v("BV", ocrResult.getText());
+    Thread thread = new Thread(new Runnable(){
+    	public void run() {
+    		try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    });
+    thread.start();
+
+if(t)
+{
+    t=false;
+    takePic();
+}   // Crudely scale betweeen 22 and 32 -- bigger font for shorter text
     int scaledSize = Math.max(22, 32 - ocrResult.getText().length() / 4);
     ocrResultTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, scaledSize);
 
@@ -994,6 +1010,12 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     //viewfinderView.drawViewfinder();
   }
   
+  public void takePic()
+  {
+	  if(handler!=null) {
+    	  handler.shutterButtonClick();
+      } 
+  }
   @Override
   public void onShutterButtonClick(ShutterButton b) {
     if (isContinuousModeActive) {

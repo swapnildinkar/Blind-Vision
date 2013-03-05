@@ -39,7 +39,6 @@ public class LocationService extends Service {
 				"blindvisionprefs", 0);
 		bid = file.getString("bid", "");
 		Log.v("BlindVision", bid);
-		//bid="2";
 	}
 
 	@Override

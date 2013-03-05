@@ -9,8 +9,14 @@ public class BootReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		Boolean isRegistered = context.getSharedPreferences(
+				MainActivity.BLINDVISION_PREFS, 0).getBoolean("isRegistered",
+				false);
 		context.startService(new Intent(context, BackgroundService.class));
-		context.startService(new Intent(context, LocationService.class));
-		Toast.makeText(context, "Blind Vision Service started!", Toast.LENGTH_SHORT).show();
+		if (isRegistered) {
+			context.startService(new Intent(context, LocationService.class));
+		}
+		Toast.makeText(context, "Blind Vision Service started!",
+				Toast.LENGTH_SHORT).show();
 	}
 }

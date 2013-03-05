@@ -68,23 +68,7 @@ public class ServerInterface {
 			httpEntity = httpResponse.getEntity();
 			reply = EntityUtils.toString(httpEntity);
 			Log.v("BlindVision", "register activity end");
-			JSONObject jObj;
-
-			jObj = new JSONObject(reply);
-			result = jObj.getString("result");
-			
-			Log.v("BlindVision", result);
-			if (result.equals("SUCCESS")) {
-				Log.v("BlindVision", "success");
-				bid = jObj.getString("bid");
-				bkey = jObj.getString("bkey");
-				return "success";
-
-			} else {
-				Log.v("BlindVision", "failed");
-				return "failed";
-			}
-
+			return reply;
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -93,8 +77,6 @@ public class ServerInterface {
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return "error";
