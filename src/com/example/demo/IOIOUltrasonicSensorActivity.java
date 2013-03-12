@@ -62,7 +62,7 @@ public class IOIOUltrasonicSensorActivity extends AbstractIOIOActivity {
 				triggerPin2_ = ioio_.openDigitalOutput(11);
 				echoPin3_ = ioio_.openPulseInput(13, PulseMode.POSITIVE);
 				triggerPin3_ = ioio_.openDigitalOutput(15);
-
+				Log.v("Blind Vision", "inside setup");
 			} catch (ConnectionLostException e) {
 				throw e;
 			}
@@ -74,26 +74,16 @@ public class IOIOUltrasonicSensorActivity extends AbstractIOIOActivity {
 
 		public void loop() throws ConnectionLostException {
 			try {
-				// read HC-SR04 ultrasonic sensor
+				System.out.println("Inside Loop");
 				triggerPin1_.write(false);
-				//triggerPin2_.write(false);
-				//triggerPin3_.write(false);
 				sleep(5);
 				triggerPin1_.write(true);
-				//triggerPin2_.write(true);
-				//triggerPin3_.write(true);
 				sleep(1);
 				triggerPin1_.write(false);
-				//triggerPin2_.write(false);
 				echoSeconds1 = (int) (echoPin1_.getDuration() * 1000 * 1000);
 				echoDistanceCm1 = echoSeconds1 / 29 / 2;
-				//echoSeconds2 = (int) (echoPin2_.getDuration() * 1000 * 1000);
-				//echoDistanceCm2 = echoSeconds2 / 29 / 2;
-				/* update UI */
 			    checkDistance();
 				sleep(20);
-				
-				
 				 
 				triggerPin2_.write(false);
 				sleep(5);
@@ -102,7 +92,6 @@ public class IOIOUltrasonicSensorActivity extends AbstractIOIOActivity {
 				triggerPin2_.write(false);
 				echoSeconds2 = (int) (echoPin2_.getDuration() * 1000 * 1000);
 				echoDistanceCm2 = echoSeconds2 / 29 / 2;
-			
 				checkDistance();
 				sleep(20);
 				
@@ -113,20 +102,9 @@ public class IOIOUltrasonicSensorActivity extends AbstractIOIOActivity {
 				triggerPin3_.write(false);
 				echoSeconds3 = (int) (echoPin3_.getDuration() * 1000 * 1000);
 				echoDistanceCm3 = echoSeconds3 / 29 / 2;
-			
 				checkDistance();
 				sleep(20);
-				/*
-				
-				sleep(5);
-				triggerPin3_.write(true);
-				sleep(1);
-				triggerPin3_.write(false);
-				echoSeconds = (int) (echoPin3_.getDuration() * 1000 * 1000);
-				echoDistanceCm3 = echoSeconds / 29 / 2;
-			
-				updateViews();
-				sleep(20);*/
+				Log.v("Blind Vision", echoDistanceCm1 + ", " + echoDistanceCm2 + ", " + echoDistanceCm3);
 				sleep(1000);
 				
 			} catch (InterruptedException e) {
@@ -143,6 +121,7 @@ public class IOIOUltrasonicSensorActivity extends AbstractIOIOActivity {
 	 * A method to create our IOIO thread.
 	 */
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected AbstractIOIOActivity.IOIOThread createIOIOThread() {
 		return new IOIOThread();

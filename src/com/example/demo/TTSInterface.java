@@ -5,7 +5,6 @@ import java.util.Locale;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import com.example.demo.R;
 
 public class TTSInterface implements TextToSpeech.OnInitListener {
 	
@@ -15,6 +14,7 @@ public class TTSInterface implements TextToSpeech.OnInitListener {
 		tts = new TextToSpeech(context, this);
 		tts.setPitch(0.7f);
 		tts.setSpeechRate(0.9f);
+		Log.v("BV", "Init complete");
 	}
 	
 	public void preSpeak(String text)

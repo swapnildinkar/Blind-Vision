@@ -7,20 +7,25 @@
     <uses-sdk
         android:minSdkVersion="10"
         android:targetSdkVersion="10" />
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.CAMERA" />
-	<uses-feature android:name="android.hardware.camera" />
-	<uses-permission android:name="android.permission.VIBRATE" />
-	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" />
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -35,37 +40,48 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-         <activity android:name="edu.sfsu.cs.orange.ocr.CaptureActivity"
-              android:screenOrientation="landscape"
-              android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-              android:windowSoftInputMode="stateAlwaysHidden"              
-              />
-         <activity android:name="edu.sfsu.cs.orange.ocr.HelpActivity"
-              />
-         <activity android:name="com.example.demo.IOIOUltrasonicSensorActivity"
-              />
-          <activity android:name="edu.sfsu.cs.orange.ocr.PreferencesActivity"
-              />
-        <receiver android:name=".ButtonIntentReceiver">
-        <intent-filter>
-            <action android:name="android.intent.action.MEDIA_BUTTON" />
-        </intent-filter>
-    </receiver>
-    <receiver android:name=".SMSBroadcastReceiver" >
+        <activity
+            android:name="edu.sfsu.cs.orange.ocr.CaptureActivity"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:windowSoftInputMode="stateAlwaysHidden" >
+        </activity>
+        <activity android:name="edu.sfsu.cs.orange.ocr.HelpActivity" />
+        <activity android:name="com.example.demo.IOIOUltrasonicSensorActivity" />
+        <activity android:name="edu.sfsu.cs.orange.ocr.PreferencesActivity" />
+        <activity android:name="com.example.demo.MessageActivity" />
+
+        <receiver android:name=".ButtonIntentReceiver" >
             <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" >
-                </action>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
-   <service android:enabled="true" android:name=".BackgroundService"></service>
-   <service android:enabled="true" android:name=".LocationService" />
-<receiver android:name=".BootReceiver">
-<intent-filter>
-<action
-android:name="android.intent.action.BOOT_COMPLETED" />
-<category android:name="android.intent.category.HOME" />
-</intent-filter>
-</receiver>
-</application>
-	
+
+        <service
+            android:name=".BackgroundService"
+            android:enabled="true" >
+        </service>
+        <service
+            android:name=".LocationService"
+            android:enabled="true" />
+        <service
+            android:name=".MessageService"
+            android:enabled="true" />
+
+        <receiver android:name=".BootReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.example.demo.MessageReceiver"
+            android:screenOrientation="portrait" >
+            <intent-filter android:priority="100" >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
 </manifest>

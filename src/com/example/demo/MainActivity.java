@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.media.AudioManager;
@@ -72,7 +73,6 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		serverInterface = new ServerInterface();
 		tts = new TTSInterface(this);
-		Log.v("Blind Vision", "TTS initialized ino ncreate");
 		mode = 1;
 		voiceSearch();
 		IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
@@ -82,7 +82,6 @@ public class MainActivity extends Activity {
 
 		isRegistered = this.getSharedPreferences(BLINDVISION_PREFS, 0)
 				.getBoolean(IS_REGISTERED, false);
-		Log.v("BlindVision", "isRegistered : " + isRegistered);
 		if (!isRegistered) {
 			new RegisterTask().execute();
 		}
@@ -225,11 +224,20 @@ public class MainActivity extends Activity {
 					pCur.close();
 				}
 			} else if (action.equals("MESSAGE")) {
-				Toast.makeText(this, "CALL", Toast.LENGTH_LONG).show();
+				//Toast.makeText(this, "MESSAGE", Toast.LENGTH_LONG).show();
 				contact = jObj.getString("contact");
 				message = jObj.getString("message");
 				result = "message " + contact + message;
 
+				if(message.equalsIgnoreCase("information")) {
+					SharedPreferences file = this.getSharedPreferences(
+							"blindvisionprefs", 0);
+					String bid = file.getString("bid", "");
+					String bkey = file.getString("bkey", "");
+					message = "ID: " + bid + "\nKEY:" + bkey;
+				}
+
+				Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 				String select = "(" + ContactsContract.Contacts.DISPLAY_NAME
 						+ " == \"" + contact + "\" )";
 				Cursor c = this.getContentResolver().query(
@@ -269,8 +277,7 @@ public class MainActivity extends Activity {
 				result = jObj.getString("knowledge");
 			}
 		} catch (JSONException e) {
-			Log.e("JSON Parser", "Error parsing data " + e.toString());
-			// finish();
+			Log.e("JSON Parser", "Error parsing data " + e.getMessage());
 			result = "Error while processing";
 		}
 
@@ -335,6 +342,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public void onDestroy() {
 		if (tts.tts != null) {

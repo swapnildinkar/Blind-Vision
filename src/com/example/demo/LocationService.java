@@ -38,7 +38,6 @@ public class LocationService extends Service {
 		SharedPreferences file = this.getSharedPreferences(
 				"blindvisionprefs", 0);
 		bid = file.getString("bid", "");
-		Log.v("BlindVision", bid);
 	}
 
 	@Override
@@ -66,9 +65,8 @@ public class LocationService extends Service {
 							+ "&lat=" + location.getLatitude() + "&lng="
 							+ location.getLongitude();
 					new UpdateTask().execute();
-					Toast.makeText(LocationService.this, locMsg, Toast.LENGTH_SHORT)
+					Toast.makeText(LocationService.this,"Location Updated"+ locMsg, Toast.LENGTH_SHORT)
 							.show();
-					Log.v("Blind Vision", locMsg);
 				}
 			}
 
@@ -86,7 +84,7 @@ public class LocationService extends Service {
 					Bundle extras) {
 			}
 		};
-		lm.requestLocationUpdates("gps", 1 * 60000, 10, locationlistener);
+		lm.requestLocationUpdates("gps", 1 * 60 * 1000, 10, locationlistener);
 	}
 	
 	private class UpdateTask extends AsyncTask<String, Void, String> {

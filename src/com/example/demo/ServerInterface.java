@@ -19,7 +19,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 public class ServerInterface {
 	DefaultHttpClient httpClient;
@@ -57,7 +56,6 @@ public class ServerInterface {
 			TelephonyManager tm = (TelephonyManager) context
 					.getSystemService(context.TELEPHONY_SERVICE);
 			String phonenumber = tm.getSimSerialNumber();
-			Log.v("BlindVision", phonenumber);
 			httpClient = new DefaultHttpClient();
 			// HttpGet httpGet = new
 			// HttpGet("mess.byethost31.com/bv/mreg.php?phn="+phonenumber);
@@ -67,7 +65,6 @@ public class ServerInterface {
 			httpResponse = httpClient.execute(httpGet);
 			httpEntity = httpResponse.getEntity();
 			reply = EntityUtils.toString(httpEntity);
-			Log.v("BlindVision", "register activity end");
 			return reply;
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block

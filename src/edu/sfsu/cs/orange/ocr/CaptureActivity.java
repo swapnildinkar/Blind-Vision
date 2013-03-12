@@ -58,6 +58,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.demo.R;
+import com.example.demo.TTSInterface;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import edu.sfsu.cs.orange.ocr.camera.CameraManager;
@@ -70,7 +71,7 @@ import edu.sfsu.cs.orange.ocr.camera.ShutterButton;
  * The code for this class was adapted from the ZXing project: http://code.google.com/p/zxing/
  */
 public final class CaptureActivity extends Activity implements SurfaceHolder.Callback, 
-  ShutterButton.OnShutterButtonListener {
+  ShutterButton.OnShutterButtonListener, View.OnClickListener {
 
   private static final String TAG = CaptureActivity.class.getSimpleName();
   
@@ -190,7 +191,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private boolean isEngineReady;
   private boolean isPaused;
   private static boolean isFirstLaunch; // True if this is the first time the app is being run
-
+  TTSInterface ttsi;
+  
   Handler getHandler() {
     return handler;
   }
@@ -332,6 +334,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     if (handler != null) {
         handler.shutterButtonClick();
       }
+    
+    ttsi = new TTSInterface(this);
   }
 
   @Override
@@ -351,6 +355,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       surfaceHolder.addCallback(this);
       surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
+    
+    surfaceView.setOnClickListener(this);
     
     // Comment out the following block to test non-OCR functions without an SD card
     
@@ -497,6 +503,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     if (baseApi != null) {
       baseApi.end();
     }
+    ttsi.tts.shutdown();
     super.onDestroy();
   }
 
@@ -726,6 +733,12 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       Toast toast = Toast.makeText(this, "OCR failed. Please try again.", Toast.LENGTH_SHORT);
       toast.setGravity(Gravity.TOP, 0, 0);
       toast.show();
+      takePic();
+      takePic();
+	    takePic();
+	    takePic();
+	    takePic();
+	    takePic();
       return false;
     }
     
@@ -752,6 +765,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     TextView ocrResultTextView = (TextView) findViewById(R.id.ocr_result_text_view);
     ocrResultTextView.setText(ocrResult.getText());
     Toast.makeText(this, ocrResult.getText(), Toast.LENGTH_SHORT).show();
+    ttsi.preSpeak(ocrResult.getText());
     Log.v("BV", ocrResult.getText());
     Thread thread = new Thread(new Runnable(){
     	public void run() {
@@ -765,11 +779,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     });
     thread.start();
 
-if(t)
-{
-    t=false;
-    takePic();
-}   // Crudely scale betweeen 22 and 32 -- bigger font for shorter text
+    if(t)
+    {
+    	t=false;
+    	takePic();
+	    takePic();
+	    takePic();
+	    takePic();
+	    takePic();
+	}   
+	// Crudely scale betweeen 22 and 32 -- bigger font for shorter text
     int scaledSize = Math.max(22, 32 - ocrResult.getText().length() / 4);
     ocrResultTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, scaledSize);
 
@@ -1240,4 +1259,13 @@ if(t)
 	    .setPositiveButton( "Done", new FinishListener(this))
 	    .show();
   }
+
+@Override
+public void onClick(View v) {
+	Log.v("Blind Vision", "On Click");
+	takePic();
+	
+}
+
+
 }
