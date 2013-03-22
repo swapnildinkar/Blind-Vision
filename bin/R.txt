@@ -23,9 +23,10 @@ int color viewfinder_mask 0x7f07000a
 int drawable background 0x7f020000
 int drawable background_pressed 0x7f020001
 int drawable ic_launcher 0x7f020002
-int drawable shutter 0x7f020003
-int drawable shutter_button 0x7f020004
-int drawable shutter_pressed 0x7f020005
+int drawable l 0x7f020003
+int drawable shutter 0x7f020004
+int drawable shutter_button 0x7f020005
+int drawable shutter_pressed 0x7f020006
 int id camera_button_view 0x7f080017
 int id decode 0x7f080000
 int id decode_failed 0x7f080001

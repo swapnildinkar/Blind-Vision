@@ -175,7 +175,7 @@
               android:autoLink="web"
               android:clickable="true" />
  
-    <edu.sfsu.cs.orange.ocr.camera.ShutterButton
+    <com.blindvision.ocr.camera.ShutterButton
               android:id="@+id/shutter_button"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
